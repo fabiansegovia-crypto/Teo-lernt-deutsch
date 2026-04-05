@@ -171,7 +171,50 @@
   @keyframes spin { to { transform: rotate(360deg); } }
   .error-msg { background: #FFE0E0; color: var(--coral); border-radius: var(--radius); padding: 18px; font-weight: 700; text-align: center; width: 100%; }
 
-  @keyframes fadeDown { from{opacity:0;transform:translateY(-20px)} to{opacity:1;transform:translateY(0)} }
+  .icon-btns { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+  .icon-btn {
+    background: var(--card-bg); border: 2px solid #e0dbd0; border-radius: 50px;
+    padding: 8px 16px; font-family: 'Nunito', sans-serif; font-weight: 800;
+    font-size: 0.85rem; cursor: pointer; color: var(--navy);
+    box-shadow: var(--shadow); transition: all 0.2s; display: flex; align-items: center; gap: 6px;
+  }
+  .icon-btn:hover { border-color: var(--sky); background: #f0fdfb; transform: scale(1.03); }
+
+  /* WORD LIST SCREEN */
+  .list-header {
+    background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow);
+    padding: 20px 24px; width: 100%; display: flex; align-items: center; justify-content: space-between;
+  }
+  .list-title { font-family: 'Baloo 2', cursive; font-size: 1.4rem; color: var(--navy); }
+  .list-count { font-size: 0.85rem; font-weight: 800; color: #aaa; }
+  .search-box {
+    width: 100%; background: var(--card-bg); border: 2px solid #e0dbd0; border-radius: 50px;
+    padding: 10px 20px; font-family: 'Nunito', sans-serif; font-weight: 700;
+    font-size: 0.9rem; color: var(--navy); outline: none; transition: border-color 0.2s;
+  }
+  .search-box:focus { border-color: var(--sky); }
+  .word-list { width: 100%; display: flex; flex-direction: column; gap: 10px; max-height: 60vh; overflow-y: auto; padding-right: 4px; }
+  .word-item {
+    background: var(--card-bg); border-radius: 16px; padding: 14px 18px;
+    box-shadow: 0 2px 12px rgba(26,26,46,0.08); display: flex; align-items: center; gap: 14px;
+  }
+  .word-item-de { font-family: 'Baloo 2', cursive; font-size: 1.1rem; font-weight: 800; color: var(--navy); flex: 1; }
+  .word-item-es { font-size: 0.88rem; font-weight: 700; color: #888; flex: 1; }
+  .level-dot {
+    width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+  }
+  .lvl-0 { background: #e0dbd0; }
+  .lvl-1 { background: var(--coral); }
+  .lvl-2 { background: #FFD23F; }
+  .lvl-3 { background: var(--sky); }
+  .lvl-4 { background: #3B82F6; }
+  .lvl-5 { background: #7C3AED; }
+  .level-label { font-size: 0.72rem; font-weight: 800; color: #aaa; text-align: center; min-width: 40px; }
+  .next-review-badge {
+    font-size: 0.7rem; font-weight: 800; padding: 2px 8px; border-radius: 50px;
+    background: var(--soft); color: #888; white-space: nowrap;
+  }
+  .next-review-badge.due { background: #FFE0E0; color: var(--coral); }
   @keyframes fadeUp   { from{opacity:0;transform:translateY(20px)}  to{opacity:1;transform:translateY(0)} }
   @keyframes popIn    { from{opacity:0;transform:scale(0.85)} to{opacity:1;transform:scale(1)} }
   @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-6px)} 80%{transform:translateX(6px)} }
@@ -191,6 +234,10 @@
     <div class="stat-pill">📚 <span id="stat-total">0</span> en estudio</div>
     <div class="stat-pill">🔁 <span id="stat-due">0</span> para hoy</div>
     <div class="stat-pill">⭐ <span id="stat-streak">0</span> racha</div>
+  </div>
+  <div class="icon-btns">
+    <button class="icon-btn" onclick="showAllWords()" title="Ver toda la base de datos">🗂️ Todas las palabras</button>
+    <button class="icon-btn" onclick="showLearningWords()" title="Ver palabras en aprendizaje">🧠 En aprendizaje</button>
   </div>
 
   <div class="progress-wrap" style="width:100%">
@@ -273,6 +320,38 @@
       <button class="r-btn r-btn-yes" onclick="rate(2)"><span class="r-icon">😄</span>¡La sabía!</button>
     </div>
     <button class="back-btn" onclick="showHome()">← Volver al inicio</button>
+  </div>
+
+  <!-- ALL WORDS SCREEN -->
+  <div id="screen-allwords" class="screen">
+    <div class="list-header">
+      <div>
+        <div class="list-title">🗂️ Todas las palabras</div>
+        <div class="list-count" id="all-count">0 palabras disponibles</div>
+      </div>
+      <button class="back-btn" onclick="showHome()" style="color:#888;font-size:0.9rem;">✕</button>
+    </div>
+    <input class="search-box" id="search-all" placeholder="🔍 Buscar palabra..." oninput="filterAllWords()">
+    <div class="word-list" id="list-all"></div>
+  </div>
+
+  <!-- LEARNING WORDS SCREEN -->
+  <div id="screen-learning" class="screen">
+    <div class="list-header">
+      <div>
+        <div class="list-title">🧠 En aprendizaje</div>
+        <div class="list-count" id="learning-count">0 palabras</div>
+      </div>
+      <button class="back-btn" onclick="showHome()" style="color:#888;font-size:0.9rem;">✕</button>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;width:100%;">
+      <span class="interval-badge" style="background:#FFE0E0;color:var(--coral)">🔴 Nivel 1</span>
+      <span class="interval-badge" style="background:#FFF3CD;color:#856404">🟡 Nivel 2-3</span>
+      <span class="interval-badge" style="background:#D1ECF1;color:#0c5460">🔵 Nivel 4</span>
+      <span class="interval-badge" style="background:#E8D5FF;color:#6d28d9">🟣 Dominada</span>
+    </div>
+    <input class="search-box" id="search-learning" placeholder="🔍 Buscar palabra..." oninput="filterLearningWords()">
+    <div class="word-list" id="list-learning"></div>
   </div>
 
   <!-- RESULT -->
@@ -532,6 +611,84 @@ window.showHome = function() {
   showScreen('screen-home');
   document.getElementById('progress-bar').style.width = '0%';
 };
+
+// ===== WORD LISTS =====
+function levelClass(level) {
+  const map = {0:'lvl-0',1:'lvl-1',2:'lvl-2',3:'lvl-3',4:'lvl-4',5:'lvl-5'};
+  return map[level] || 'lvl-0';
+}
+function levelName(level) {
+  const map = {0:'Nueva',1:'Nivel 1',2:'Nivel 2',3:'Nivel 3',4:'Nivel 4',5:'Dominada'};
+  return map[level] || 'Nueva';
+}
+function nextReviewText(p) {
+  if (!p || !p.nextReview) return '';
+  const t = today();
+  if (p.nextReview <= t) return 'Hoy';
+  const diff = Math.round((new Date(p.nextReview) - new Date(t)) / (1000*60*60*24));
+  if (diff === 1) return 'Mañana';
+  return `en ${diff} días`;
+}
+
+function buildWordItem(word) {
+  const id = wordId(word);
+  const p = progress[id];
+  const level = p ? (p.level||0) : -1;
+  const due = p && p.nextReview <= today();
+  const reviewText = nextReviewText(p);
+  return `
+    <div class="word-item">
+      <div class="level-dot ${levelClass(level < 0 ? 0 : level)}"></div>
+      <div class="word-item-de">${word.deutsch}</div>
+      <div class="word-item-es">${word['español']}</div>
+      ${p ? `<div class="next-review-badge ${due?'due':''}">${reviewText}</div>` : '<div class="next-review-badge">sin iniciar</div>'}
+      <div class="level-label">${level < 0 ? '—' : levelName(level)}</div>
+    </div>`;
+}
+
+window.showAllWords = function() {
+  document.getElementById('all-count').textContent = `${allWords.length} palabras disponibles`;
+  document.getElementById('search-all').value = '';
+  renderAllWords(allWords);
+  showScreen('screen-allwords');
+};
+
+window.filterAllWords = function() {
+  const q = document.getElementById('search-all').value.toLowerCase();
+  const filtered = allWords.filter(w => w.deutsch.toLowerCase().includes(q) || w['español'].toLowerCase().includes(q));
+  renderAllWords(filtered);
+};
+
+function renderAllWords(words) {
+  document.getElementById('list-all').innerHTML = words.map(buildWordItem).join('');
+}
+
+window.showLearningWords = function() {
+  const learned = getLearnedWords();
+  document.getElementById('learning-count').textContent = `${learned.length} palabras en aprendizaje`;
+  document.getElementById('search-learning').value = '';
+  renderLearningWords(learned);
+  showScreen('screen-learning');
+};
+
+window.filterLearningWords = function() {
+  const q = document.getElementById('search-learning').value.toLowerCase();
+  const filtered = getLearnedWords().filter(w => w.deutsch.toLowerCase().includes(q) || w['español'].toLowerCase().includes(q));
+  renderLearningWords(filtered);
+};
+
+function renderLearningWords(words) {
+  // Sort: due first, then by level
+  const t = today();
+  const sorted = [...words].sort((a,b) => {
+    const pa = progress[wordId(a)], pb = progress[wordId(b)];
+    const da = pa && pa.nextReview <= t ? 0 : 1;
+    const db = pb && pb.nextReview <= t ? 0 : 1;
+    if (da !== db) return da - db;
+    return (pa?.level||0) - (pb?.level||0);
+  });
+  document.getElementById('list-learning').innerHTML = sorted.map(buildWordItem).join('');
+}
 
 window.speakDe = function(e) {
   e.stopPropagation();
